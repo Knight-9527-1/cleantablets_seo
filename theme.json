@@ -1,0 +1,96 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/theme.json",
+  "version": 3,
+  "settings": {
+    "appearanceTools": true,
+    "color": {
+      "palette": [
+        {
+          "name": "Brand Green",
+          "slug": "brand-green",
+          "color": "#2F8665"
+        },
+        {
+          "name": "Deep Green",
+          "slug": "deep-green",
+          "color": "#123C2E"
+        },
+        {
+          "name": "Light Green Background",
+          "slug": "light-green-background",
+          "color": "#EAF5EF"
+        },
+        {
+          "name": "Page Background",
+          "slug": "page-background",
+          "color": "#FAFCFB"
+        },
+        {
+          "name": "Heading Text",
+          "slug": "heading-text",
+          "color": "#16251F"
+        },
+        {
+          "name": "Body Text",
+          "slug": "body-text",
+          "color": "#42534B"
+        },
+        {
+          "name": "Border Gray",
+          "slug": "border-gray",
+          "color": "#AAB7B1"
+        },
+        {
+          "name": "White",
+          "slug": "white",
+          "color": "#FFFFFF"
+        }
+      ]
+    },
+    "layout": {
+      "contentSize": "760px",
+      "wideSize": "1180px"
+    },
+    "typography": {
+      "fontFamilies": [
+        {
+          "name": "Montserrat",
+          "slug": "heading",
+          "fontFamily": "\"Montserrat\", system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif"
+        },
+        {
+          "name": "DM Sans",
+          "slug": "body",
+          "fontFamily": "\"DM Sans\", system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif"
+        }
+      ]
+    }
+  },
+  "styles": {
+    "color": {
+      "background": "#FAFCFB",
+      "text": "#42534B"
+    },
+    "typography": {
+      "fontFamily": "\"DM Sans\", system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "lineHeight": "1.65"
+    },
+    "elements": {
+      "heading": {
+        "color": {
+          "text": "#16251F"
+        },
+        "typography": {
+          "fontFamily": "\"Montserrat\", system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+          "fontWeight": "700",
+          "lineHeight": "1.15"
+        }
+      },
+      "link": {
+        "color": {
+          "text": "#2F8665"
+        }
+      }
+    }
+  }
+}
