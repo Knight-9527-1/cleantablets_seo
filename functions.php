@@ -699,8 +699,6 @@ function bunjoin_render_home_content() {
 		'Send your product type, target market, formula direction, packaging requirements, and estimated quantity so the team can review the project scope.'
 	);
 
-	echo bunjoin_render_editor_content_section();
-
 	return ob_get_clean();
 }
 
@@ -844,7 +842,6 @@ function bunjoin_render_capabilities_page_content() {
 	</section>
 	<?php
 	echo bunjoin_render_quote_band( 'Share your OEM/ODM project brief', 'Include product type, service type, target market, formula expectations, packaging concept, order quantity, and target launch date.' );
-	echo bunjoin_render_editor_content_section();
 	return ob_get_clean();
 }
 
@@ -886,7 +883,6 @@ function bunjoin_render_quality_page_content() {
 	</section>
 	<?php
 	echo bunjoin_render_quote_band( 'Need documents for a destination market?', 'Tell us the product type, target country, buyer requirements, and any document checklist so requirements can be reviewed before quotation.' );
-	echo bunjoin_render_editor_content_section();
 	return ob_get_clean();
 }
 
@@ -946,7 +942,6 @@ function bunjoin_render_about_page_content() {
 	</section>
 	<?php
 	echo bunjoin_render_quote_band( 'Tell us about your cleaning tablet brand plan', 'Share the target market, product type, formula direction, packaging concept, and timeline for a practical project discussion.' );
-	echo bunjoin_render_editor_content_section();
 	return ob_get_clean();
 }
 
@@ -995,7 +990,6 @@ function bunjoin_render_insights_page_content() {
 	</section>
 	<?php
 	echo bunjoin_render_quote_band( 'Have a question for a cleaning tablet project?', 'Use the RFQ form to share your project brief and documentation needs.' );
-	echo bunjoin_render_editor_content_section();
 	return ob_get_clean();
 }
 
@@ -1030,59 +1024,7 @@ function bunjoin_render_contact_page_content() {
 		</div>
 	</section>
 	<?php
-	echo bunjoin_render_editor_content_section();
 	return ob_get_clean();
-}
-
-/**
- * Editor content appended below theme-managed sections.
- *
- * @return string
- */
-function bunjoin_render_editor_content_section() {
-	$content = bunjoin_get_editor_content();
-
-	if ( '' === $content ) {
-		return '';
-	}
-
-	ob_start();
-	?>
-	<section class="bunjoin-editor-content">
-		<div class="bunjoin-container">
-			<?php echo $content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-		</div>
-	</section>
-	<?php
-	return ob_get_clean();
-}
-
-/**
- * Get current page editor content safely for appended editable areas.
- *
- * @return string
- */
-function bunjoin_get_editor_content() {
-	$post = get_post();
-
-	if ( ! $post instanceof WP_Post ) {
-		return '';
-	}
-
-	$content = trim( (string) $post->post_content );
-
-	if ( '' === $content ) {
-		return '';
-	}
-
-	$theme_shortcodes = array( 'bunjoin_home', 'bunjoin_page', 'bunjoin_posts', 'bunjoin_archive', 'bunjoin_search', 'bunjoin_single', 'bunjoin_404' );
-	foreach ( $theme_shortcodes as $shortcode ) {
-		if ( has_shortcode( $content, $shortcode ) ) {
-			return '';
-		}
-	}
-
-	return apply_filters( 'the_content', $content );
 }
 
 /**

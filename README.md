@@ -112,6 +112,14 @@ Recommended slugs:
 /bottle-cleaner-tablets/
 ```
 
+## Managed Page Rendering
+
+The theme renders the Home, Products, Capabilities, Quality, About Us, Insights, Contact Us, and product detail pages from theme templates and PHP renderers.
+
+For these managed pages, the theme does not automatically append the saved WordPress editor body. This prevents older Hostinger AI Theme block content from appearing below the new BunJoin theme sections and creating a duplicated homepage or duplicated landing page.
+
+Standard WordPress pages that do not match the managed slugs still render their editor content normally.
+
 ## Logo
 
 The header reads the WordPress Custom Logo setting.

@@ -781,15 +781,6 @@ p {
   margin-top: 34px;
 }
 
-.bunjoin-editor-content {
-  padding: 56px 0;
-  background: var(--bunjoin-white);
-}
-
-.bunjoin-editor-content .bunjoin-container > *:last-child {
-  margin-bottom: 0;
-}
-
 .bunjoin-site-footer {
   color: rgba(255, 255, 255, 0.82);
   background: var(--bunjoin-deep);
