@@ -77,6 +77,41 @@ function bunjoin_child_enqueue_assets() {
 add_action( 'wp_enqueue_scripts', 'bunjoin_child_enqueue_assets' );
 
 /**
+ * Mark product-catalog pages and avoid retail cart behavior on this B2B theme.
+ *
+ * @param array<int, string> $classes Body classes.
+ * @return array<int, string>
+ */
+function bunjoin_child_body_classes( $classes ) {
+	$post = get_post();
+	$slug = $post instanceof WP_Post ? $post->post_name : '';
+
+	if ( 'products' === $slug || isset( bunjoin_get_products()[ $slug ] ) ) {
+		$classes[] = 'bunjoin-no-commerce';
+		$classes[] = 'bunjoin-product-catalog-page';
+	}
+
+	return $classes;
+}
+add_filter( 'body_class', 'bunjoin_child_body_classes' );
+
+/**
+ * If WooCommerce is present, keep this site in catalog/RFQ mode.
+ */
+function bunjoin_disable_woocommerce_cart_flows() {
+	if ( ! class_exists( 'WooCommerce' ) ) {
+		return;
+	}
+
+	remove_action( 'woocommerce_after_shop_loop_item', 'woocommerce_template_loop_add_to_cart', 10 );
+	remove_action( 'woocommerce_after_shop_loop_item_title', 'woocommerce_template_loop_price', 10 );
+	remove_action( 'woocommerce_single_product_summary', 'woocommerce_template_single_add_to_cart', 30 );
+	remove_action( 'woocommerce_single_product_summary', 'woocommerce_template_single_price', 10 );
+	add_filter( 'woocommerce_is_purchasable', '__return_false' );
+}
+add_action( 'wp', 'bunjoin_disable_woocommerce_cart_flows' );
+
+/**
  * Register a small pattern category for editor reuse.
  */
 function bunjoin_register_pattern_category() {
@@ -421,13 +456,21 @@ function bunjoin_render_site_footer() {
 function bunjoin_render_product_grid() {
 	ob_start();
 	?>
-	<div class="bunjoin-grid bunjoin-grid--3">
+	<div class="bunjoin-grid bunjoin-grid--3 bunjoin-product-catalog" aria-label="<?php esc_attr_e( 'Cleaning tablet product catalog', 'bunjoin-child' ); ?>">
 		<?php foreach ( bunjoin_get_products() as $slug => $product ) : ?>
-			<article class="bunjoin-card">
+			<article class="bunjoin-card bunjoin-product-card">
 				<span class="bunjoin-card-icon" aria-hidden="true"><?php echo esc_html( $product['icon'] ); ?></span>
 				<h3><?php echo esc_html( $product['title'] ); ?></h3>
 				<p><?php echo esc_html( $product['short'] ); ?></p>
-				<a class="bunjoin-card-link" href="<?php echo esc_url( bunjoin_url( '/' . $slug . '/' ) ); ?>"><?php esc_html_e( 'View product details', 'bunjoin-child' ); ?></a>
+				<ul class="bunjoin-product-meta">
+					<li><?php esc_html_e( 'OEM/ODM ready', 'bunjoin-child' ); ?></li>
+					<li><?php esc_html_e( 'Private label packaging', 'bunjoin-child' ); ?></li>
+					<li><?php esc_html_e( 'Specs confirmed by project', 'bunjoin-child' ); ?></li>
+				</ul>
+				<div class="bunjoin-card-actions">
+					<a class="bunjoin-btn bunjoin-btn--ghost" href="<?php echo esc_url( bunjoin_url( '/' . $slug . '/' ) ); ?>"><?php esc_html_e( 'View Details', 'bunjoin-child' ); ?></a>
+					<a class="bunjoin-card-link" href="<?php echo esc_url( bunjoin_url( '/contact-us/#inquiry-form' ) ); ?>"><?php esc_html_e( 'Request Quote', 'bunjoin-child' ); ?></a>
+				</div>
 			</article>
 		<?php endforeach; ?>
 	</div>
@@ -672,8 +715,11 @@ function bunjoin_render_products_page_content() {
 	<section class="bunjoin-page-hero">
 		<div class="bunjoin-container">
 			<p class="bunjoin-eyebrow"><?php esc_html_e( 'Products', 'bunjoin-child' ); ?></p>
-			<h1><?php esc_html_e( 'Cleaning Tablet Product Overview', 'bunjoin-child' ); ?></h1>
-			<p class="bunjoin-lead"><?php esc_html_e( 'Explore OEM/ODM and private label cleaning tablet categories for appliance care, kitchen cleaning, bottle cleaning, retail, distributor, and e-commerce programs.', 'bunjoin-child' ); ?></p>
+			<h1><?php esc_html_e( 'Cleaning Tablet Product Catalog', 'bunjoin-child' ); ?></h1>
+			<p class="bunjoin-lead"><?php esc_html_e( 'Browse BunJoin cleaning tablet categories as a B2B catalog. There is no shopping cart, retail checkout, public price table, or add-to-cart flow. Each product links to specification placeholders and an RFQ path.', 'bunjoin-child' ); ?></p>
+			<div class="bunjoin-catalog-note" role="note">
+				<?php esc_html_e( 'Catalog only: product specifications, MOQ, packaging, samples, and documentation are confirmed after reviewing your project brief.', 'bunjoin-child' ); ?>
+			</div>
 		</div>
 	</section>
 	<section class="bunjoin-section bunjoin-section--white">
@@ -693,7 +739,6 @@ function bunjoin_render_products_page_content() {
 	</section>
 	<?php
 	echo bunjoin_render_quote_band( 'Need a cleaning tablet category not listed here?', 'Send the intended use, target market, formula expectation, packaging direction, and estimated order quantity for review.' );
-	echo bunjoin_render_editor_content_section();
 	return ob_get_clean();
 }
 
@@ -768,7 +813,6 @@ function bunjoin_render_product_detail_content( $slug ) {
 	</section>
 	<?php
 	echo bunjoin_render_quote_band( 'Discuss this cleaning tablet project', 'Send your brief so formula, packaging, sample, MOQ, and documentation requirements can be reviewed.' );
-	echo bunjoin_render_editor_content_section();
 	return ob_get_clean();
 }
 

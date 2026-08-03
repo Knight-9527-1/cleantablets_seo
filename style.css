@@ -489,6 +489,75 @@ p {
   font-weight: 700;
 }
 
+.bunjoin-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin-top: auto;
+  padding-top: 20px;
+}
+
+.bunjoin-card-actions .bunjoin-card-link {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+.bunjoin-product-card {
+  gap: 0;
+}
+
+.bunjoin-product-meta {
+  display: grid;
+  gap: 7px;
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bunjoin-product-meta li {
+  position: relative;
+  padding-left: 24px;
+  color: var(--bunjoin-body);
+  font-size: 0.94rem;
+}
+
+.bunjoin-product-meta li::before {
+  position: absolute;
+  top: 0.75em;
+  left: 6px;
+  width: 7px;
+  height: 7px;
+  background: var(--bunjoin-brand);
+  border-radius: 50%;
+  content: "";
+}
+
+.bunjoin-catalog-note {
+  max-width: 760px;
+  margin-top: 22px;
+  padding: 14px 16px;
+  color: var(--bunjoin-deep);
+  background: rgba(255, 255, 255, 0.74);
+  border: 1px solid rgba(170, 183, 177, 0.58);
+  border-radius: 8px;
+  font-weight: 650;
+}
+
+.bunjoin-no-commerce .add_to_cart_button,
+.bunjoin-no-commerce .single_add_to_cart_button,
+.bunjoin-no-commerce .product_type_simple,
+.bunjoin-no-commerce .product_type_variable,
+.bunjoin-no-commerce .cart,
+.bunjoin-no-commerce .price,
+.bunjoin-no-commerce .wc-block-cart,
+.bunjoin-no-commerce .wc-block-checkout,
+.bunjoin-no-commerce .wp-block-woocommerce-cart,
+.bunjoin-no-commerce .wp-block-woocommerce-checkout,
+.bunjoin-no-commerce .wp-block-button:not(.bunjoin-catalog-action) {
+  display: none !important;
+}
+
 .bunjoin-split {
   display: grid;
   grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);

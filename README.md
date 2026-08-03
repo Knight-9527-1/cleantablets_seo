@@ -158,6 +158,19 @@ Security and handling:
 
 If the form validates but email fails, check the WordPress mail configuration or add a transactional SMTP plugin.
 
+## Products Are Catalog-Only
+
+The Products section is intentionally not a retail store:
+
+- No cart flow.
+- No checkout flow.
+- No public price table.
+- No add-to-cart buttons.
+- Product cards link to detail pages and RFQ.
+- Product detail pages reserve specifications, packaging, MOQ, documents, samples, and quotation notes.
+
+If WooCommerce is installed, the child theme removes default WooCommerce price and add-to-cart actions on the front end and uses `woocommerce.php` as a catalog-only fallback template.
+
 ## Cache Refresh
 
 After Hostinger deploys the latest commit:
