@@ -23,6 +23,8 @@ Do not deploy this repository inside another nested `bunjoin-child` or `cleantab
 - Text domain: `bunjoin-child`
 - The parent theme is not included or modified by this repository.
 - The child theme includes both PHP fallback templates and valid block templates for compatibility with classic or block-oriented parent behavior.
+- Multilingual support is designed for the free Polylang plugin with English, Chinese, and Spanish.
+- The theme outputs lightweight SEO tags for managed pages: title, meta description, canonical, Open Graph, Twitter summary tags, hreflang, and neutral JSON-LD organization data.
 
 ## Included Site Structure
 
@@ -91,6 +93,8 @@ Create Missing BunJoin Pages
 This action is idempotent:
 
 - It only creates pages that do not already exist by slug.
+- If Polylang is active and `en`, `zh`, and `es` are configured, it creates only missing translated pages and links them as translations.
+- It stores a private `_bunjoin_page_key` value so translated pages can render the correct theme-managed page even when free Polylang requires unique slugs such as `zh-products` or `es-products`.
 - It does not overwrite existing pages.
 - It does not overwrite menus.
 - It does not set the front page automatically.
@@ -112,6 +116,14 @@ Recommended slugs:
 /bottle-cleaner-tablets/
 ```
 
+Recommended Polylang languages:
+
+```text
+English: en
+Chinese: zh
+Spanish: es
+```
+
 ## Managed Page Rendering
 
 The theme renders the Home, Products, Capabilities, Quality, About Us, Insights, Contact Us, and product detail pages from theme templates and PHP renderers.
@@ -119,6 +131,19 @@ The theme renders the Home, Products, Capabilities, Quality, About Us, Insights,
 For these managed pages, the theme does not automatically append the saved WordPress editor body. This prevents older Hostinger AI Theme block content from appearing below the new BunJoin theme sections and creating a duplicated homepage or duplicated landing page.
 
 Standard WordPress pages that do not match the managed slugs still render their editor content normally.
+
+## Multilingual SEO
+
+The theme includes lightweight multilingual SEO support:
+
+- English is the primary language.
+- Chinese and Spanish are secondary languages.
+- Public managed pages output localized SEO titles and descriptions.
+- Managed pages output `hreflang` alternates for `en_US`, `zh_CN`, `es_ES`, plus `x-default`.
+- The header includes a compact language switcher.
+- The theme does not claim certifications, factory area, capacity, patents, founding year, customer names, or sales data.
+
+If a full SEO plugin is installed later, review duplicate meta output and disable one source if needed.
 
 ## Logo
 

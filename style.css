@@ -1,7 +1,7 @@
 /*
 Theme Name: BunJoin Child
 Template: hostinger-ai-theme
-Version: 1.0.0
+Version: 1.1.0
 Text Domain: bunjoin-child
 Description: A deployable B2B WordPress child theme for BunJoin cleaning tablet OEM/ODM and private label manufacturing.
 Author: BunJoin
@@ -241,8 +241,8 @@ p {
 
 .bunjoin-header-inner {
   display: grid;
-  grid-template-columns: auto 1fr auto;
-  gap: 22px;
+  grid-template-columns: auto 1fr auto auto;
+  gap: 16px;
   align-items: center;
   min-height: 78px;
 }
@@ -357,6 +357,36 @@ p {
 
 .bunjoin-mobile-quote {
   display: none;
+}
+
+.bunjoin-language-switcher ul {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bunjoin-language-switcher a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 7px 9px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  color: var(--bunjoin-body);
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1;
+  text-decoration: none;
+}
+
+.bunjoin-language-switcher a:hover,
+.bunjoin-language-switcher a.is-active {
+  color: var(--bunjoin-deep);
+  background: rgba(47, 134, 101, 0.1);
+  border-color: rgba(47, 134, 101, 0.2);
 }
 
 .bunjoin-hero {
@@ -858,7 +888,7 @@ p {
   }
 
   .bunjoin-header-inner {
-    grid-template-columns: auto auto;
+    grid-template-columns: 1fr auto auto;
   }
 
   .bunjoin-menu-toggle {
@@ -913,6 +943,10 @@ p {
     display: inline-flex;
     width: 100%;
     margin-top: 10px;
+  }
+
+  .bunjoin-language-switcher {
+    justify-self: end;
   }
 
   .bunjoin-split,

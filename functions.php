@@ -9,7 +9,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'BUNJOIN_CHILD_VERSION', '1.0.0' );
+define( 'BUNJOIN_CHILD_VERSION', '1.1.0' );
+define( 'BUNJOIN_PAGE_KEY_META', '_bunjoin_page_key' );
 
 /**
  * Theme setup.
@@ -77,19 +78,196 @@ function bunjoin_child_enqueue_assets() {
 add_action( 'wp_enqueue_scripts', 'bunjoin_child_enqueue_assets' );
 
 /**
+ * SEO title and description data by managed page.
+ *
+ * @return array<string, array<string, array{title:string,description:string}>>
+ */
+function bunjoin_get_seo_map() {
+	$default = array(
+		'en' => array(
+			'title'       => 'Custom Cleaning Tablet Manufacturer | OEM/ODM & Private Label',
+			'description' => 'BunJoin supports B2B cleaning tablet OEM/ODM and private label projects, including formulation discussion, tablet production, packaging coordination, COA/SDS support, and RFQ workflows.',
+		),
+		'zh' => array(
+			'title'       => '定制清洁片制造商 | OEM/ODM 与自有品牌',
+			'description' => 'BunJoin 为 B2B 买家提供清洁片 OEM/ODM 与自有品牌项目支持，覆盖配方讨论、片剂生产、包装协同、COA/SDS 文件支持和询盘流程。',
+		),
+		'es' => array(
+			'title'       => 'Fabricante de Tabletas de Limpieza | OEM/ODM y Marca Privada',
+			'description' => 'BunJoin apoya proyectos B2B OEM/ODM y de marca privada para tabletas de limpieza, con formulación, producción, empaque, documentación COA/SDS y solicitudes de cotización.',
+		),
+	);
+
+	$pages = array(
+		'home'         => $default,
+		'products'     => array(
+			'en' => array( 'title' => 'Cleaning Tablet Product Catalog | BunJoin OEM/ODM', 'description' => 'Browse BunJoin cleaning tablet product categories for B2B private label buyers, including washing machine, dishwasher, coffee machine, ice machine, garbage disposal, and bottle cleaner tablets.' ),
+			'zh' => array( 'title' => '清洁片产品目录 | BunJoin OEM/ODM', 'description' => '浏览 BunJoin 面向 B2B 自有品牌买家的清洁片产品分类，包括洗衣机、洗碗机、咖啡机、制冰机、厨余处理器和水杯清洁片。' ),
+			'es' => array( 'title' => 'Catálogo de Tabletas de Limpieza | BunJoin OEM/ODM', 'description' => 'Explore categorías de tabletas de limpieza BunJoin para compradores B2B de marca privada: lavadoras, lavavajillas, cafeteras, máquinas de hielo, trituradores y botellas.' ),
+		),
+		'capabilities' => array(
+			'en' => array( 'title' => 'OEM/ODM Cleaning Tablet Manufacturing Capabilities | BunJoin', 'description' => 'Review BunJoin manufacturing capabilities for custom formulation, private label manufacturing, tablet production, packaging solutions, and product development process.' ),
+			'zh' => array( 'title' => 'OEM/ODM 清洁片制造能力 | BunJoin', 'description' => '了解 BunJoin 在定制配方、自有品牌制造、片剂生产、包装方案和产品开发流程方面的制造能力。' ),
+			'es' => array( 'title' => 'Capacidades OEM/ODM para Tabletas de Limpieza | BunJoin', 'description' => 'Revise las capacidades de BunJoin en formulación personalizada, fabricación de marca privada, producción de tabletas, empaque y desarrollo de producto.' ),
+		),
+		'quality'      => array(
+			'en' => array( 'title' => 'Quality Assurance & Documentation for Cleaning Tablets | BunJoin', 'description' => 'BunJoin quality content covers raw material control, process control, finished goods inspection, batch traceability, and COA/SDS documentation support without unsupported certification claims.' ),
+			'zh' => array( 'title' => '清洁片质量保证与文件支持 | BunJoin', 'description' => 'BunJoin 质量内容涵盖原料控制、过程控制、成品检查、批次追溯和 COA/SDS 文件支持，不发布未经确认的认证声明。' ),
+			'es' => array( 'title' => 'Calidad y Documentación para Tabletas de Limpieza | BunJoin', 'description' => 'La calidad de BunJoin cubre control de materias primas, proceso, inspección final, trazabilidad por lote y documentación COA/SDS sin afirmar certificaciones no verificadas.' ),
+		),
+		'about-us'     => array(
+			'en' => array( 'title' => 'About BunJoin | Cleaning Tablet OEM/ODM Manufacturer', 'description' => 'Learn about BunJoin as a cleaning tablet OEM/ODM and private label manufacturing partner for brands, sellers, retailers, distributors, importers, and private label buyers.' ),
+			'zh' => array( 'title' => '关于 BunJoin | 清洁片 OEM/ODM 制造商', 'description' => '了解 BunJoin 作为清洁片 OEM/ODM 与自有品牌制造伙伴，服务品牌方、电商卖家、零售商、分销商、进口商和自有品牌买家。' ),
+			'es' => array( 'title' => 'Sobre BunJoin | Fabricante OEM/ODM de Tabletas de Limpieza', 'description' => 'Conozca BunJoin como socio de fabricación OEM/ODM y marca privada para marcas, vendedores, retailers, distribuidores, importadores y compradores B2B.' ),
+		),
+		'insights'     => array(
+			'en' => array( 'title' => 'Cleaning Tablet OEM/ODM Insights, Guides & FAQ | BunJoin', 'description' => 'Read cleaning tablet guides, OEM/ODM resources, FAQs, blog posts, and case study placeholders for private label cleaning tablet buyers.' ),
+			'zh' => array( 'title' => '清洁片 OEM/ODM 洞察、指南与 FAQ | BunJoin', 'description' => '阅读面向自有品牌清洁片买家的清洁片指南、OEM/ODM 资源、FAQ、博客和案例栏目。' ),
+			'es' => array( 'title' => 'Recursos OEM/ODM, Guías y FAQ de Tabletas de Limpieza | BunJoin', 'description' => 'Lea guías de tabletas de limpieza, recursos OEM/ODM, preguntas frecuentes, blog y ejemplos para compradores de marca privada.' ),
+		),
+		'contact-us'   => array(
+			'en' => array( 'title' => 'Request a Cleaning Tablet Quote | BunJoin', 'description' => 'Send BunJoin your cleaning tablet project brief with product type, service type, market, quantity, formula, packaging, launch date, and message for B2B RFQ review.' ),
+			'zh' => array( 'title' => '提交清洁片报价需求 | BunJoin', 'description' => '向 BunJoin 提交清洁片项目需求，包括产品类型、服务类型、市场、数量、配方、包装、上市时间和留言，用于 B2B 报价评估。' ),
+			'es' => array( 'title' => 'Solicitar Cotización de Tabletas de Limpieza | BunJoin', 'description' => 'Envíe a BunJoin su brief con tipo de producto, servicio, mercado, cantidad, fórmula, empaque, fecha de lanzamiento y mensaje para revisión B2B.' ),
+		),
+	);
+
+	foreach ( bunjoin_get_products() as $slug => $product ) {
+		$translations = bunjoin_translation_map();
+		$zh_product_title = isset( $translations['zh'][ $product['title'] ] ) ? $translations['zh'][ $product['title'] ] : $product['title'];
+		$es_product_title = isset( $translations['es'][ $product['title'] ] ) ? $translations['es'][ $product['title'] ] : $product['title'];
+		$pages[ $slug ] = array(
+			'en' => array(
+				'title'       => $product['title'] . ' | Private Label Cleaning Tablets',
+				'description' => $product['description'] . ' Request formula, packaging, MOQ, documentation, sample, and quotation review for B2B projects.',
+			),
+			'zh' => array(
+				'title'       => $zh_product_title . ' | 自有品牌清洁片',
+				'description' => '面向 B2B 买家的' . $zh_product_title . '产品开发页面，预留配方、包装、MOQ、文件、样品和报价评估内容。',
+			),
+			'es' => array(
+				'title'       => $es_product_title . ' | Tabletas de Limpieza de Marca Privada',
+				'description' => 'Página de desarrollo B2B para ' . $es_product_title . ', con revisión de fórmula, empaque, MOQ, documentación, muestras y cotización.',
+			),
+		);
+	}
+
+	return $pages;
+}
+
+/**
+ * Current SEO data.
+ *
+ * @return array{title:string,description:string}
+ */
+function bunjoin_get_current_seo_data() {
+	$lang = bunjoin_current_language();
+	$key = is_front_page() ? 'home' : bunjoin_get_current_page_key();
+	$map = bunjoin_get_seo_map();
+
+	if ( isset( $map[ $key ][ $lang ] ) ) {
+		return $map[ $key ][ $lang ];
+	}
+
+	if ( isset( $map['home'][ $lang ] ) ) {
+		return $map['home'][ $lang ];
+	}
+
+	return $map['home']['en'];
+}
+
+/**
+ * Improve the document title for theme-managed pages.
+ *
+ * @param array<string, string> $parts Title parts.
+ * @return array<string, string>
+ */
+function bunjoin_filter_document_title_parts( $parts ) {
+	if ( is_admin() ) {
+		return $parts;
+	}
+
+	$seo = bunjoin_get_current_seo_data();
+	$parts['title'] = $seo['title'];
+	unset( $parts['site'] );
+
+	return $parts;
+}
+add_filter( 'document_title_parts', 'bunjoin_filter_document_title_parts', 20 );
+
+/**
+ * Output lightweight SEO metadata.
+ */
+function bunjoin_output_seo_meta() {
+	if ( is_admin() || is_feed() ) {
+		return;
+	}
+
+	$seo = bunjoin_get_current_seo_data();
+	$key = is_front_page() ? 'home' : bunjoin_get_current_page_key();
+	$canonical = is_singular() ? get_permalink() : home_url( add_query_arg( array(), $GLOBALS['wp']->request ?? '' ) );
+
+	if ( function_exists( 'wp_get_canonical_url' ) && is_singular() ) {
+		$wp_canonical = wp_get_canonical_url();
+		if ( $wp_canonical ) {
+			$canonical = $wp_canonical;
+		}
+	}
+
+	echo "\n" . '<meta name="description" content="' . esc_attr( $seo['description'] ) . '">' . "\n";
+	echo '<link rel="canonical" href="' . esc_url( $canonical ) . '">' . "\n";
+	echo '<meta property="og:type" content="website">' . "\n";
+	echo '<meta property="og:title" content="' . esc_attr( $seo['title'] ) . '">' . "\n";
+	echo '<meta property="og:description" content="' . esc_attr( $seo['description'] ) . '">' . "\n";
+	echo '<meta property="og:url" content="' . esc_url( $canonical ) . '">' . "\n";
+	echo '<meta name="twitter:card" content="summary_large_image">' . "\n";
+	echo '<meta name="twitter:title" content="' . esc_attr( $seo['title'] ) . '">' . "\n";
+	echo '<meta name="twitter:description" content="' . esc_attr( $seo['description'] ) . '">' . "\n";
+
+	foreach ( bunjoin_supported_languages() as $slug => $language ) {
+		$url = bunjoin_get_language_url_for_key( $key, $slug );
+		echo '<link rel="alternate" hreflang="' . esc_attr( str_replace( '_', '-', $language['locale'] ) ) . '" href="' . esc_url( $url ) . '">' . "\n";
+	}
+
+	echo '<link rel="alternate" hreflang="x-default" href="' . esc_url( bunjoin_get_language_url_for_key( $key, 'en' ) ) . '">' . "\n";
+
+	$schema = array(
+		'@context'        => 'https://schema.org',
+		'@type'           => 'Organization',
+		'name'            => 'BunJoin',
+		'url'             => home_url( '/' ),
+		'description'     => $seo['description'],
+		'knowsAbout'      => array(
+			'Cleaning tablet manufacturing',
+			'OEM cleaning tablets',
+			'ODM cleaning tablets',
+			'Private label cleaning tablets',
+			'Effervescent cleaning tablets',
+		),
+		'areaServed'      => array( 'United States', 'International B2B Markets' ),
+		'availableLanguage' => array( 'English', 'Chinese', 'Spanish' ),
+	);
+
+	echo '<script type="application/ld+json">' . wp_json_encode( $schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) . '</script>' . "\n";
+}
+add_action( 'wp_head', 'bunjoin_output_seo_meta', 2 );
+remove_action( 'wp_head', 'rel_canonical' );
+
+/**
  * Mark product-catalog pages and avoid retail cart behavior on this B2B theme.
  *
  * @param array<int, string> $classes Body classes.
  * @return array<int, string>
  */
 function bunjoin_child_body_classes( $classes ) {
-	$post = get_post();
-	$slug = $post instanceof WP_Post ? $post->post_name : '';
+	$key = bunjoin_get_current_page_key();
 
-	if ( 'products' === $slug || isset( bunjoin_get_products()[ $slug ] ) ) {
+	if ( 'products' === $key || isset( bunjoin_get_products()[ $key ] ) ) {
 		$classes[] = 'bunjoin-no-commerce';
 		$classes[] = 'bunjoin-product-catalog-page';
 	}
+
+	$classes[] = 'bunjoin-lang-' . bunjoin_current_language();
 
 	return $classes;
 }
@@ -125,19 +303,248 @@ function bunjoin_register_pattern_category() {
 add_action( 'init', 'bunjoin_register_pattern_category' );
 
 /**
+ * Supported public languages for the BunJoin site.
+ *
+ * @return array<string, array{name:string,locale:string,prefix:string}>
+ */
+function bunjoin_supported_languages() {
+	return array(
+		'en' => array( 'name' => 'English', 'locale' => 'en_US', 'prefix' => '' ),
+		'zh' => array( 'name' => '中文', 'locale' => 'zh_CN', 'prefix' => 'zh-' ),
+		'es' => array( 'name' => 'Español', 'locale' => 'es_ES', 'prefix' => 'es-' ),
+	);
+}
+
+/**
+ * Current language slug.
+ *
+ * @return string
+ */
+function bunjoin_current_language() {
+	if ( function_exists( 'pll_current_language' ) ) {
+		$lang = pll_current_language( 'slug' );
+
+		if ( is_string( $lang ) && isset( bunjoin_supported_languages()[ $lang ] ) ) {
+			return $lang;
+		}
+	}
+
+	return 'en';
+}
+
+/**
+ * Translate a short theme string for the current language.
+ *
+ * @param string $text English source text.
+ * @return string
+ */
+function bunjoin_t( $text ) {
+	$lang = bunjoin_current_language();
+
+	if ( 'en' === $lang ) {
+		return $text;
+	}
+
+	$translations = bunjoin_translation_map();
+
+	return isset( $translations[ $lang ][ $text ] ) ? $translations[ $lang ][ $text ] : $text;
+}
+
+/**
+ * Translate rendered static theme copy when no gettext files are present yet.
+ *
+ * @param string $html Rendered HTML.
+ * @return string
+ */
+function bunjoin_localize_rendered_html( $html ) {
+	$lang = bunjoin_current_language();
+
+	if ( 'en' === $lang || '' === $html ) {
+		return $html;
+	}
+
+	$map = isset( bunjoin_translation_map()[ $lang ] ) ? bunjoin_translation_map()[ $lang ] : array();
+
+	if ( empty( $map ) ) {
+		return $html;
+	}
+
+	uksort( $map, static function ( $a, $b ) {
+		return strlen( $b ) <=> strlen( $a );
+	} );
+
+	return strtr( $html, $map );
+}
+
+/**
+ * Translation map for public static content.
+ *
+ * @return array<string, array<string, string>>
+ */
+function bunjoin_translation_map() {
+	return array(
+		'zh' => array(
+			'Home' => '首页',
+			'Products' => '产品',
+			'Capabilities' => '制造能力',
+			'Quality' => '质量',
+			'About Us' => '关于我们',
+			'Insights' => '行业洞察',
+			'Contact Us' => '联系我们',
+			'Request a Quote' => '获取报价',
+			'Explore Our Products' => '查看产品',
+			'Explore Products' => '查看产品',
+			'View Details' => '查看详情',
+			'Request Product Quote' => '获取产品报价',
+			'Back to Products' => '返回产品',
+			'Open section' => '打开栏目',
+			'BunJoin' => 'BunJoin',
+			'Cleaning Tablet OEM/ODM and Private Label' => '清洁片 OEM/ODM 与自有品牌',
+			'Custom Cleaning Tablet Manufacturer' => '定制清洁片制造商',
+			'BunJoin supports B2B buyers with OEM, ODM, and private label cleaning tablet projects, from formulation discussion and tablet format planning to packaging coordination and production documentation.' => 'BunJoin 为 B2B 买家提供 OEM、ODM 和自有品牌清洁片项目支持，覆盖配方讨论、片剂规格规划、包装协同和生产文件支持。',
+			'OEM/ODM manufacturing support' => 'OEM/ODM 制造支持',
+			'Private label packaging workflow' => '自有品牌包装流程',
+			'Custom formula and sample review' => '定制配方与样品评估',
+			'COA/SDS support when required' => '按项目需求支持 COA/SDS',
+			'Core product categories' => '核心产品分类',
+			'Cleaning Tablet Product Lines' => '清洁片产品线',
+			'Build private label appliance and household cleaning tablet SKUs around clear product use cases and packaging goals.' => '围绕明确用途和包装目标，开发家电及家清清洁片自有品牌产品。',
+			'Manufacturing capabilities' => '制造能力',
+			'From OEM Brief to Market-Ready Packaging' => '从 OEM 需求到可上市包装',
+			'Use BunJoin as a manufacturing partner for product development, tablet production, and private label packaging coordination.' => 'BunJoin 可作为产品开发、片剂生产和自有品牌包装协同的制造伙伴。',
+			'Development process' => '开发流程',
+			'From Product Concept to Mass Production' => '从产品概念到量产',
+			'A structured cooperation flow helps B2B buyers move from early idea to approved formula, approved packaging, and planned production.' => '结构化合作流程帮助 B2B 买家从初步想法推进到配方确认、包装确认和生产计划。',
+			'Quality and documentation' => '质量与文件',
+			'Practical Quality Controls for B2B Orders' => '面向 B2B 订单的质量控制',
+			'Who we serve' => '服务对象',
+			'Built for Cleaning Brands and Channel Buyers' => '面向清洁品牌与渠道买家',
+			'Why BunJoin' => '为什么选择 BunJoin',
+			'A Focused Cleaning Tablet Manufacturing Partner' => '专注清洁片项目的制造伙伴',
+			'Guides for Cleaning Tablet Buyers' => '清洁片买家指南',
+			'Ready to discuss a private label cleaning tablet project?' => '准备讨论自有品牌清洁片项目？',
+			'Send your product type, target market, formula direction, packaging requirements, and estimated quantity so the team can review the project scope.' => '请提供产品类型、目标市场、配方方向、包装要求和预估数量，以便评估项目范围。',
+			'Cleaning Tablet Product Catalog' => '清洁片产品目录',
+			'Product development' => '产品开发',
+			'What Each Product Page Covers' => '每个产品页包含的内容',
+			'Need a cleaning tablet category not listed here?' => '需要其他清洁片品类？',
+			'OEM/ODM Cleaning Tablet Manufacturing Capabilities' => 'OEM/ODM 清洁片制造能力',
+			'Quality Assurance and Product Documentation' => '质量保证与产品文件',
+			'About BunJoin' => '关于 BunJoin',
+			'Cleaning Tablet OEM/ODM Insights' => '清洁片 OEM/ODM 洞察',
+			'Request a Cleaning Tablet Quote' => '提交清洁片报价需求',
+			'Inquiry form' => '询盘表单',
+			'Tell Us About Your Project' => '告诉我们你的项目',
+			'Washing Machine Cleaner Tablets' => '洗衣机清洁片',
+			'Dishwasher Cleaner Tablets' => '洗碗机清洁片',
+			'Coffee Machine Cleaner Tablets' => '咖啡机清洁片',
+			'Ice Machine Cleaner Tablets' => '制冰机清洁片',
+			'Garbage Disposal Cleaner Tablets' => '厨余处理器清洁片',
+			'Bottle Cleaner Tablets' => '水杯清洁片',
+			'Navigation' => '导航',
+			'Contact' => '联系方式',
+			'Name' => '姓名',
+			'Company' => '公司',
+			'Business Email' => '商务邮箱',
+			'Country/Market' => '国家/市场',
+			'Product Type' => '产品类型',
+			'Service Type' => '服务类型',
+			'Estimated Order Quantity' => '预计订单数量',
+			'Formula Requirements' => '配方要求',
+			'Packaging Requirements' => '包装要求',
+			'Target Launch Date' => '目标上市时间',
+			'Message' => '留言',
+			'Submit Inquiry' => '提交询盘',
+		),
+		'es' => array(
+			'Home' => 'Inicio',
+			'Products' => 'Productos',
+			'Capabilities' => 'Capacidades',
+			'Quality' => 'Calidad',
+			'About Us' => 'Sobre Nosotros',
+			'Insights' => 'Recursos',
+			'Contact Us' => 'Contacto',
+			'Request a Quote' => 'Solicitar Cotización',
+			'Explore Our Products' => 'Ver Productos',
+			'Explore Products' => 'Ver Productos',
+			'View Details' => 'Ver Detalles',
+			'Request Product Quote' => 'Solicitar Cotización',
+			'Back to Products' => 'Volver a Productos',
+			'Open section' => 'Abrir sección',
+			'Cleaning Tablet OEM/ODM and Private Label' => 'Tabletas de limpieza OEM/ODM y marca privada',
+			'Custom Cleaning Tablet Manufacturer' => 'Fabricante de Tabletas de Limpieza Personalizadas',
+			'BunJoin supports B2B buyers with OEM, ODM, and private label cleaning tablet projects, from formulation discussion and tablet format planning to packaging coordination and production documentation.' => 'BunJoin apoya a compradores B2B con proyectos OEM, ODM y de marca privada para tabletas de limpieza, desde la formulación y el formato de la tableta hasta la coordinación del empaque y la documentación de producción.',
+			'OEM/ODM manufacturing support' => 'Soporte de fabricación OEM/ODM',
+			'Private label packaging workflow' => 'Flujo de empaque para marca privada',
+			'Custom formula and sample review' => 'Fórmula personalizada y revisión de muestras',
+			'COA/SDS support when required' => 'Soporte COA/SDS cuando se requiera',
+			'Core product categories' => 'Categorías principales',
+			'Cleaning Tablet Product Lines' => 'Líneas de Tabletas de Limpieza',
+			'Build private label appliance and household cleaning tablet SKUs around clear product use cases and packaging goals.' => 'Desarrolle SKUs de marca privada para electrodomésticos y limpieza del hogar según usos claros y objetivos de empaque.',
+			'Manufacturing capabilities' => 'Capacidades de fabricación',
+			'From OEM Brief to Market-Ready Packaging' => 'Del brief OEM al empaque listo para mercado',
+			'Use BunJoin as a manufacturing partner for product development, tablet production, and private label packaging coordination.' => 'Use BunJoin como socio de fabricación para desarrollo de productos, producción de tabletas y coordinación de empaque de marca privada.',
+			'Development process' => 'Proceso de desarrollo',
+			'From Product Concept to Mass Production' => 'Del concepto a la producción en masa',
+			'A structured cooperation flow helps B2B buyers move from early idea to approved formula, approved packaging, and planned production.' => 'Un flujo estructurado ayuda a compradores B2B a avanzar desde la idea inicial hasta la fórmula, empaque y producción aprobados.',
+			'Quality and documentation' => 'Calidad y documentación',
+			'Practical Quality Controls for B2B Orders' => 'Controles de calidad prácticos para pedidos B2B',
+			'Who we serve' => 'A quién servimos',
+			'Built for Cleaning Brands and Channel Buyers' => 'Creado para marcas de limpieza y compradores de canal',
+			'Why BunJoin' => 'Por qué BunJoin',
+			'A Focused Cleaning Tablet Manufacturing Partner' => 'Un socio enfocado en tabletas de limpieza',
+			'Guides for Cleaning Tablet Buyers' => 'Guías para compradores de tabletas de limpieza',
+			'Ready to discuss a private label cleaning tablet project?' => '¿Listo para hablar de un proyecto de marca privada?',
+			'Send your product type, target market, formula direction, packaging requirements, and estimated quantity so the team can review the project scope.' => 'Envíe el tipo de producto, mercado objetivo, dirección de fórmula, requisitos de empaque y cantidad estimada para revisar el alcance del proyecto.',
+			'Cleaning Tablet Product Catalog' => 'Catálogo de Tabletas de Limpieza',
+			'Product development' => 'Desarrollo de producto',
+			'What Each Product Page Covers' => 'Qué cubre cada página de producto',
+			'Need a cleaning tablet category not listed here?' => '¿Necesita otra categoría de tableta de limpieza?',
+			'OEM/ODM Cleaning Tablet Manufacturing Capabilities' => 'Capacidades OEM/ODM para Tabletas de Limpieza',
+			'Quality Assurance and Product Documentation' => 'Aseguramiento de Calidad y Documentación',
+			'About BunJoin' => 'Sobre BunJoin',
+			'Cleaning Tablet OEM/ODM Insights' => 'Recursos OEM/ODM de Tabletas de Limpieza',
+			'Request a Cleaning Tablet Quote' => 'Solicitar Cotización de Tabletas de Limpieza',
+			'Inquiry form' => 'Formulario de consulta',
+			'Tell Us About Your Project' => 'Cuéntenos sobre su proyecto',
+			'Washing Machine Cleaner Tablets' => 'Tabletas Limpiadoras para Lavadoras',
+			'Dishwasher Cleaner Tablets' => 'Tabletas Limpiadoras para Lavavajillas',
+			'Coffee Machine Cleaner Tablets' => 'Tabletas Limpiadoras para Cafeteras',
+			'Ice Machine Cleaner Tablets' => 'Tabletas Limpiadoras para Máquinas de Hielo',
+			'Garbage Disposal Cleaner Tablets' => 'Tabletas Limpiadoras para Trituradores',
+			'Bottle Cleaner Tablets' => 'Tabletas Limpiadoras para Botellas',
+			'Navigation' => 'Navegación',
+			'Contact' => 'Contacto',
+			'Name' => 'Nombre',
+			'Company' => 'Empresa',
+			'Business Email' => 'Correo empresarial',
+			'Country/Market' => 'País/Mercado',
+			'Product Type' => 'Tipo de producto',
+			'Service Type' => 'Tipo de servicio',
+			'Estimated Order Quantity' => 'Cantidad estimada',
+			'Formula Requirements' => 'Requisitos de fórmula',
+			'Packaging Requirements' => 'Requisitos de empaque',
+			'Target Launch Date' => 'Fecha objetivo de lanzamiento',
+			'Message' => 'Mensaje',
+			'Submit Inquiry' => 'Enviar consulta',
+		),
+	);
+}
+
+/**
  * Main navigation fallback.
  *
  * @return array<int, array{label:string,path:string}>
  */
 function bunjoin_get_nav_items() {
 	return array(
-		array( 'label' => 'Home', 'path' => '/' ),
-		array( 'label' => 'Products', 'path' => '/products/' ),
-		array( 'label' => 'Capabilities', 'path' => '/capabilities/' ),
-		array( 'label' => 'Quality', 'path' => '/quality/' ),
-		array( 'label' => 'About Us', 'path' => '/about-us/' ),
-		array( 'label' => 'Insights', 'path' => '/insights/' ),
-		array( 'label' => 'Contact Us', 'path' => '/contact-us/' ),
+		array( 'label' => bunjoin_t( 'Home' ), 'path' => '/' ),
+		array( 'label' => bunjoin_t( 'Products' ), 'path' => '/products/' ),
+		array( 'label' => bunjoin_t( 'Capabilities' ), 'path' => '/capabilities/' ),
+		array( 'label' => bunjoin_t( 'Quality' ), 'path' => '/quality/' ),
+		array( 'label' => bunjoin_t( 'About Us' ), 'path' => '/about-us/' ),
+		array( 'label' => bunjoin_t( 'Insights' ), 'path' => '/insights/' ),
+		array( 'label' => bunjoin_t( 'Contact Us' ), 'path' => '/contact-us/' ),
 	);
 }
 
@@ -275,23 +682,245 @@ function bunjoin_get_audiences() {
  */
 function bunjoin_get_seed_pages() {
 	$pages = array(
-		'home'         => array( 'title' => 'Home', 'parent' => '' ),
-		'products'     => array( 'title' => 'Products', 'parent' => '' ),
-		'capabilities' => array( 'title' => 'Capabilities', 'parent' => '' ),
-		'quality'      => array( 'title' => 'Quality', 'parent' => '' ),
-		'about-us'     => array( 'title' => 'About Us', 'parent' => '' ),
-		'insights'     => array( 'title' => 'Insights', 'parent' => '' ),
-		'contact-us'   => array( 'title' => 'Contact Us', 'parent' => '' ),
+		'home'         => array( 'title' => 'Home', 'parent' => '', 'key' => 'home' ),
+		'products'     => array( 'title' => 'Products', 'parent' => '', 'key' => 'products' ),
+		'capabilities' => array( 'title' => 'Capabilities', 'parent' => '', 'key' => 'capabilities' ),
+		'quality'      => array( 'title' => 'Quality', 'parent' => '', 'key' => 'quality' ),
+		'about-us'     => array( 'title' => 'About Us', 'parent' => '', 'key' => 'about-us' ),
+		'insights'     => array( 'title' => 'Insights', 'parent' => '', 'key' => 'insights' ),
+		'contact-us'   => array( 'title' => 'Contact Us', 'parent' => '', 'key' => 'contact-us' ),
 	);
 
 	foreach ( bunjoin_get_products() as $slug => $product ) {
 		$pages[ $slug ] = array(
 			'title'  => $product['title'],
 			'parent' => '',
+			'key'    => $slug,
 		);
 	}
 
 	return $pages;
+}
+
+/**
+ * Get seed page title by language.
+ *
+ * @param string $key Page key.
+ * @param string $lang Language slug.
+ * @return string
+ */
+function bunjoin_get_seed_page_title( $key, $lang = 'en' ) {
+	$pages = bunjoin_get_seed_pages();
+	$title = isset( $pages[ $key ]['title'] ) ? $pages[ $key ]['title'] : ucwords( str_replace( '-', ' ', $key ) );
+
+	if ( 'en' === $lang ) {
+		return $title;
+	}
+
+	return isset( bunjoin_translation_map()[ $lang ][ $title ] ) ? bunjoin_translation_map()[ $lang ][ $title ] : $title;
+}
+
+/**
+ * Get the slug used for a seed page in a language.
+ *
+ * @param string $key Page key.
+ * @param string $lang Language slug.
+ * @return string
+ */
+function bunjoin_get_seed_page_slug( $key, $lang = 'en' ) {
+	if ( 'en' === $lang ) {
+		return $key;
+	}
+
+	$languages = bunjoin_supported_languages();
+	$prefix = isset( $languages[ $lang ]['prefix'] ) ? $languages[ $lang ]['prefix'] : $lang . '-';
+
+	return $prefix . $key;
+}
+
+/**
+ * Get a managed page key from a post or current query.
+ *
+ * @param WP_Post|null $post Optional post.
+ * @return string
+ */
+function bunjoin_get_current_page_key( $post = null ) {
+	$post = $post instanceof WP_Post ? $post : get_post();
+
+	if ( ! $post instanceof WP_Post ) {
+		return '';
+	}
+
+	$key = (string) get_post_meta( $post->ID, BUNJOIN_PAGE_KEY_META, true );
+
+	if ( '' !== $key ) {
+		return $key;
+	}
+
+	$slug = $post->post_name;
+	$seed_pages = bunjoin_get_seed_pages();
+
+	if ( isset( $seed_pages[ $slug ] ) ) {
+		return $slug;
+	}
+
+	foreach ( bunjoin_supported_languages() as $lang => $language ) {
+		$prefix = $language['prefix'];
+
+		if ( '' !== $prefix && str_starts_with( $slug, $prefix ) ) {
+			$maybe_key = substr( $slug, strlen( $prefix ) );
+
+			if ( isset( $seed_pages[ $maybe_key ] ) ) {
+				return $maybe_key;
+			}
+		}
+	}
+
+	return $slug;
+}
+
+/**
+ * Find a managed page by key and language.
+ *
+ * @param string $key Page key.
+ * @param string $lang Language slug.
+ * @return int
+ */
+function bunjoin_get_page_id_by_key( $key, $lang = '' ) {
+	$lang = $lang ? $lang : bunjoin_current_language();
+
+	if ( 'home' === $key ) {
+		$front_id = (int) get_option( 'page_on_front' );
+
+		if ( $front_id ) {
+			if ( function_exists( 'pll_get_post' ) ) {
+				$translated_id = (int) pll_get_post( $front_id, $lang );
+
+				if ( $translated_id ) {
+					return $translated_id;
+				}
+			}
+
+			return $front_id;
+		}
+	}
+
+	$query = new WP_Query( array(
+		'post_type'              => 'page',
+		'post_status'            => 'publish',
+		'posts_per_page'         => 1,
+		'fields'                 => 'ids',
+		'no_found_rows'          => true,
+		'update_post_meta_cache' => false,
+		'update_post_term_cache' => false,
+		'meta_query'             => array(
+			array(
+				'key'   => BUNJOIN_PAGE_KEY_META,
+				'value' => $key,
+			),
+		),
+		'lang'                   => $lang,
+	) );
+
+	if ( ! empty( $query->posts[0] ) ) {
+		return (int) $query->posts[0];
+	}
+
+	$page = get_page_by_path( $key, OBJECT, 'page' );
+
+	if ( $page instanceof WP_Post ) {
+		if ( function_exists( 'pll_get_post' ) ) {
+			$translated_id = (int) pll_get_post( $page->ID, $lang );
+
+			if ( $translated_id ) {
+				return $translated_id;
+			}
+		}
+
+		if ( 'en' === $lang ) {
+			return (int) $page->ID;
+		}
+	}
+
+	$language_slug = bunjoin_get_seed_page_slug( $key, $lang );
+	$page = get_page_by_path( $language_slug, OBJECT, 'page' );
+
+	if ( $page instanceof WP_Post ) {
+		return (int) $page->ID;
+	}
+
+	return 0;
+}
+
+/**
+ * Render Polylang-aware language switcher.
+ *
+ * @return string
+ */
+function bunjoin_render_language_switcher() {
+	$languages = bunjoin_supported_languages();
+	$current = bunjoin_current_language();
+
+	ob_start();
+	?>
+	<nav class="bunjoin-language-switcher" aria-label="<?php esc_attr_e( 'Language selector', 'bunjoin-child' ); ?>">
+		<ul>
+			<?php foreach ( $languages as $slug => $language ) : ?>
+				<?php
+				$url = '';
+				if ( function_exists( 'pll_the_languages' ) ) {
+					$pll_languages = pll_the_languages( array(
+						'raw' => 1,
+						'hide_if_empty' => 0,
+					) );
+					if ( isset( $pll_languages[ $slug ]['url'] ) ) {
+						$url = $pll_languages[ $slug ]['url'];
+					}
+				}
+
+				if ( ! $url ) {
+					$url = bunjoin_get_language_url_for_key( bunjoin_get_current_page_key(), $slug );
+				}
+				?>
+				<li>
+					<a class="<?php echo esc_attr( $slug === $current ? 'is-active' : '' ); ?>" href="<?php echo esc_url( $url ); ?>" hreflang="<?php echo esc_attr( str_replace( '_', '-', $language['locale'] ) ); ?>">
+						<?php echo esc_html( $language['name'] ); ?>
+					</a>
+				</li>
+			<?php endforeach; ?>
+		</ul>
+	</nav>
+	<?php
+	return ob_get_clean();
+}
+
+/**
+ * Get a URL for a managed key in a target language.
+ *
+ * @param string $key Page key.
+ * @param string $lang Language slug.
+ * @return string
+ */
+function bunjoin_get_language_url_for_key( $key, $lang ) {
+	$key = $key ? $key : 'home';
+	$post_id = bunjoin_get_page_id_by_key( $key, $lang );
+
+	if ( $post_id ) {
+		return get_permalink( $post_id );
+	}
+
+	if ( function_exists( 'pll_home_url' ) ) {
+		return pll_home_url( $lang );
+	}
+
+	$languages = bunjoin_supported_languages();
+	$prefix = isset( $languages[ $lang ]['prefix'] ) ? $languages[ $lang ]['prefix'] : '';
+
+	if ( 'en' === $lang ) {
+		return 'home' === $key ? home_url( '/' ) : home_url( '/' . $key . '/' );
+	}
+
+	return home_url( '/' . $prefix . $key . '/' );
 }
 
 /**
@@ -301,6 +930,30 @@ function bunjoin_get_seed_pages() {
  * @return string
  */
 function bunjoin_url( $path ) {
+	$parts = wp_parse_url( $path );
+	$clean_path = isset( $parts['path'] ) ? $parts['path'] : $path;
+	$hash = isset( $parts['fragment'] ) ? '#' . $parts['fragment'] : '';
+	$query = isset( $parts['query'] ) ? '?' . $parts['query'] : '';
+	$key = trim( $clean_path, '/' );
+
+	if ( '' === $key ) {
+		if ( function_exists( 'pll_home_url' ) ) {
+			return pll_home_url( bunjoin_current_language() ) . $query . $hash;
+		}
+
+		return home_url( '/' ) . $query . $hash;
+	}
+
+	$post_id = bunjoin_get_page_id_by_key( $key, bunjoin_current_language() );
+
+	if ( $post_id ) {
+		return get_permalink( $post_id ) . $query . $hash;
+	}
+
+	if ( function_exists( 'pll_home_url' ) ) {
+		return trailingslashit( pll_home_url( bunjoin_current_language() ) ) . ltrim( $clean_path, '/' ) . $query . $hash;
+	}
+
 	return home_url( $path );
 }
 
@@ -337,7 +990,7 @@ function bunjoin_section_header( $eyebrow, $title, $copy = '' ) {
  */
 function bunjoin_wrap_main( $content, $class = '' ) {
 	$class_attr = trim( 'site-main bunjoin-main ' . $class );
-	return '<main id="primary" class="' . esc_attr( $class_attr ) . '">' . $content . '</main>';
+	return '<main id="primary" class="' . esc_attr( $class_attr ) . '">' . bunjoin_localize_rendered_html( $content ) . '</main>';
 }
 
 /**
@@ -391,11 +1044,12 @@ function bunjoin_render_site_header() {
 				<a class="bunjoin-btn bunjoin-mobile-quote" href="<?php echo esc_url( $quote_url ); ?>"><?php esc_html_e( 'Request a Quote', 'bunjoin-child' ); ?></a>
 			</nav>
 
+			<?php echo bunjoin_render_language_switcher(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 			<a class="bunjoin-btn bunjoin-header-quote" href="<?php echo esc_url( $quote_url ); ?>"><?php esc_html_e( 'Request a Quote', 'bunjoin-child' ); ?></a>
 		</div>
 	</header>
 	<?php
-	return ob_get_clean();
+	return bunjoin_localize_rendered_html( ob_get_clean() );
 }
 
 /**
@@ -445,7 +1099,7 @@ function bunjoin_render_site_footer() {
 		</div>
 	</footer>
 	<?php
-	return ob_get_clean();
+	return bunjoin_localize_rendered_html( ob_get_clean() );
 }
 
 /**
@@ -1033,14 +1687,13 @@ function bunjoin_render_contact_page_content() {
  * @return string
  */
 function bunjoin_render_dynamic_page_content() {
-	$post = get_post();
-	$slug = $post instanceof WP_Post ? $post->post_name : '';
+	$key = bunjoin_get_current_page_key();
 
-	if ( isset( bunjoin_get_products()[ $slug ] ) ) {
-		return bunjoin_render_product_detail_content( $slug );
+	if ( isset( bunjoin_get_products()[ $key ] ) ) {
+		return bunjoin_render_product_detail_content( $key );
 	}
 
-	switch ( $slug ) {
+	switch ( $key ) {
 		case 'products':
 			return bunjoin_render_products_page_content();
 		case 'capabilities':
@@ -1586,37 +2239,82 @@ function bunjoin_create_missing_pages() {
 	$existing = array();
 	$failed = array();
 	$page_ids = array();
+	$target_languages = array_keys( bunjoin_supported_languages() );
+	$polylang_languages = array();
+
+	if ( function_exists( 'pll_languages_list' ) ) {
+		$polylang_languages = pll_languages_list( array( 'fields' => 'slug' ) );
+		$target_languages = array_values( array_intersect( $target_languages, $polylang_languages ) );
+
+		if ( empty( $target_languages ) ) {
+			$target_languages = array( 'en' );
+			$failed['polylang-languages'] = __( 'Polylang is active but English, Chinese, and Spanish languages are not configured yet.', 'bunjoin-child' );
+		}
+	}
 
 	foreach ( bunjoin_get_seed_pages() as $slug => $page ) {
-		$found = get_page_by_path( $slug, OBJECT, 'page' );
+		$page_key = isset( $page['key'] ) ? $page['key'] : $slug;
+		$translations = array();
 
-		if ( $found instanceof WP_Post ) {
-			$existing[ $slug ] = $page['title'];
-			$page_ids[ $slug ] = $found->ID;
-			continue;
+		foreach ( $target_languages as $lang ) {
+			$page_slug = bunjoin_get_seed_page_slug( $page_key, $lang );
+			$page_title = bunjoin_get_seed_page_title( $page_key, $lang );
+			$found_id = bunjoin_get_page_id_by_key( $page_key, $lang );
+			$found = $found_id ? get_post( $found_id ) : get_page_by_path( $page_slug, OBJECT, 'page' );
+
+			if ( $found instanceof WP_Post ) {
+				update_post_meta( $found->ID, BUNJOIN_PAGE_KEY_META, $page_key );
+
+				if ( function_exists( 'pll_set_post_language' ) ) {
+					pll_set_post_language( $found->ID, $lang );
+				}
+
+				$existing[ $lang . ':' . $page_key ] = $page_title;
+				$translations[ $lang ] = (int) $found->ID;
+
+				if ( 'en' === $lang ) {
+					$page_ids[ $page_key ] = (int) $found->ID;
+				}
+
+				continue;
+			}
+
+			$parent_id = 0;
+			if ( $page['parent'] && isset( $page_ids[ $page['parent'] ] ) ) {
+				$parent_id = absint( $page_ids[ $page['parent'] ] );
+			}
+
+			$page_id = wp_insert_post( array(
+				'post_type'    => 'page',
+				'post_status'  => 'publish',
+				'post_title'   => $page_title,
+				'post_name'    => $page_slug,
+				'post_parent'  => $parent_id,
+				'post_content' => '',
+			), true );
+
+			if ( is_wp_error( $page_id ) ) {
+				$failed[ $lang . ':' . $page_key ] = $page_id->get_error_message();
+				continue;
+			}
+
+			update_post_meta( $page_id, BUNJOIN_PAGE_KEY_META, $page_key );
+
+			if ( function_exists( 'pll_set_post_language' ) ) {
+				pll_set_post_language( $page_id, $lang );
+			}
+
+			$created[ $lang . ':' . $page_key ] = $page_title;
+			$translations[ $lang ] = absint( $page_id );
+
+			if ( 'en' === $lang ) {
+				$page_ids[ $page_key ] = absint( $page_id );
+			}
 		}
 
-		$parent_id = 0;
-		if ( $page['parent'] && isset( $page_ids[ $page['parent'] ] ) ) {
-			$parent_id = absint( $page_ids[ $page['parent'] ] );
+		if ( function_exists( 'pll_save_post_translations' ) && count( $translations ) > 1 ) {
+			pll_save_post_translations( $translations );
 		}
-
-		$page_id = wp_insert_post( array(
-			'post_type'    => 'page',
-			'post_status'  => 'publish',
-			'post_title'   => $page['title'],
-			'post_name'    => $slug,
-			'post_parent'  => $parent_id,
-			'post_content' => '',
-		), true );
-
-		if ( is_wp_error( $page_id ) ) {
-			$failed[ $slug ] = $page_id->get_error_message();
-			continue;
-		}
-
-		$created[ $slug ] = $page['title'];
-		$page_ids[ $slug ] = absint( $page_id );
 	}
 
 	return array(
