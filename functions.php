@@ -801,7 +801,9 @@ function bunjoin_get_page_id_by_key( $key, $lang = '' ) {
 				}
 			}
 
-			return $front_id;
+			if ( 'en' === $lang ) {
+				return $front_id;
+			}
 		}
 	}
 
@@ -2316,6 +2318,8 @@ function bunjoin_create_missing_pages() {
 			pll_save_post_translations( $translations );
 		}
 	}
+
+	flush_rewrite_rules();
 
 	return array(
 		'created'  => $created,
