@@ -2325,6 +2325,84 @@ function bunjoin_create_missing_pages() {
 }
 
 /**
+ * Check whether Polylang is installed.
+ *
+ * @return bool
+ */
+function bunjoin_is_polylang_installed() {
+	return file_exists( WP_PLUGIN_DIR . '/polylang/polylang.php' );
+}
+
+/**
+ * Install and activate the free Polylang plugin from WordPress.org.
+ *
+ * @return true|WP_Error
+ */
+function bunjoin_install_and_activate_polylang() {
+	if ( ! current_user_can( 'install_plugins' ) ) {
+		return new WP_Error( 'bunjoin_permissions', __( 'Current user cannot install plugins.', 'bunjoin-child' ) );
+	}
+
+	if ( ! bunjoin_is_polylang_installed() ) {
+		require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
+		require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+		require_once ABSPATH . 'wp-admin/includes/misc.php';
+
+		$api = plugins_api( 'plugin_information', array(
+			'slug'   => 'polylang',
+			'fields' => array( 'sections' => false ),
+		) );
+
+		if ( is_wp_error( $api ) ) {
+			return $api;
+		}
+
+		$upgrader = new Plugin_Upgrader( new Automatic_Upgrader_Skin() );
+		$result = $upgrader->install( $api->download_link );
+
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		if ( ! $result ) {
+			return new WP_Error( 'bunjoin_polylang_install_failed', __( 'Polylang installation failed.', 'bunjoin-child' ) );
+		}
+	}
+
+	require_once ABSPATH . 'wp-admin/includes/plugin.php';
+
+	if ( ! is_plugin_active( 'polylang/polylang.php' ) ) {
+		$result = activate_plugin( 'polylang/polylang.php' );
+
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+	}
+
+	return true;
+}
+
+/**
+ * Get Polylang status for the setup screen.
+ *
+ * @return array{installed:bool,active:bool,languages:array<int,string>}
+ */
+function bunjoin_get_polylang_status() {
+	$languages = array();
+
+	if ( function_exists( 'pll_languages_list' ) ) {
+		$languages = pll_languages_list( array( 'fields' => 'slug' ) );
+	}
+
+	return array(
+		'installed' => bunjoin_is_polylang_installed(),
+		'active'    => function_exists( 'pll_current_language' ),
+		'languages' => is_array( $languages ) ? $languages : array(),
+	);
+}
+
+/**
  * Render setup admin page.
  */
 function bunjoin_render_setup_page() {
@@ -2333,16 +2411,55 @@ function bunjoin_render_setup_page() {
 	}
 
 	$result = null;
+	$plugin_result = null;
 
 	if ( isset( $_POST['bunjoin_seed_pages'] ) ) {
 		check_admin_referer( 'bunjoin_seed_pages' );
 		$result = bunjoin_create_missing_pages();
 	}
 
+	if ( isset( $_POST['bunjoin_install_polylang'] ) ) {
+		check_admin_referer( 'bunjoin_install_polylang' );
+		$plugin_result = bunjoin_install_and_activate_polylang();
+	}
+
+	$polylang_status = bunjoin_get_polylang_status();
+
 	?>
 	<div class="wrap">
 		<h1><?php esc_html_e( 'BunJoin Theme Setup', 'bunjoin-child' ); ?></h1>
-		<p><?php esc_html_e( 'Create only missing pages for the BunJoin navigation and product detail structure. Existing pages, menus, homepage settings, and content are not overwritten.', 'bunjoin-child' ); ?></p>
+		<p><?php esc_html_e( 'Create only missing pages for the BunJoin navigation, multilingual structure, SEO page keys, and product detail structure. Existing pages, menus, homepage settings, and content are not overwritten.', 'bunjoin-child' ); ?></p>
+
+		<h2><?php esc_html_e( 'Polylang', 'bunjoin-child' ); ?></h2>
+		<p>
+			<?php
+			printf(
+				esc_html__( 'Installed: %1$s. Active: %2$s. Languages detected: %3$s.', 'bunjoin-child' ),
+				$polylang_status['installed'] ? esc_html__( 'yes', 'bunjoin-child' ) : esc_html__( 'no', 'bunjoin-child' ),
+				$polylang_status['active'] ? esc_html__( 'yes', 'bunjoin-child' ) : esc_html__( 'no', 'bunjoin-child' ),
+				$polylang_status['languages'] ? esc_html( implode( ', ', $polylang_status['languages'] ) ) : esc_html__( 'none', 'bunjoin-child' )
+			);
+			?>
+		</p>
+
+		<?php if ( null !== $plugin_result ) : ?>
+			<?php if ( is_wp_error( $plugin_result ) ) : ?>
+				<div class="notice notice-error"><p><?php echo esc_html( $plugin_result->get_error_message() ); ?></p></div>
+			<?php else : ?>
+				<div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Polylang is installed and active.', 'bunjoin-child' ); ?></p></div>
+			<?php endif; ?>
+		<?php endif; ?>
+
+		<?php if ( ! $polylang_status['active'] ) : ?>
+			<form method="post">
+				<?php wp_nonce_field( 'bunjoin_install_polylang' ); ?>
+				<input type="hidden" name="bunjoin_install_polylang" value="1">
+				<?php submit_button( __( 'Install and Activate Free Polylang', 'bunjoin-child' ) ); ?>
+			</form>
+			<p><?php esc_html_e( 'After activation, configure English, Chinese, and Spanish in Languages before creating multilingual pages.', 'bunjoin-child' ); ?></p>
+		<?php else : ?>
+			<p><?php esc_html_e( 'Recommended Polylang language slugs: en, zh, es.', 'bunjoin-child' ); ?></p>
+		<?php endif; ?>
 
 		<?php if ( is_array( $result ) ) : ?>
 			<div class="notice notice-success is-dismissible">
@@ -2371,7 +2488,7 @@ function bunjoin_render_setup_page() {
 		<form method="post">
 			<?php wp_nonce_field( 'bunjoin_seed_pages' ); ?>
 			<input type="hidden" name="bunjoin_seed_pages" value="1">
-			<?php submit_button( __( 'Create Missing BunJoin Pages', 'bunjoin-child' ) ); ?>
+			<?php submit_button( __( 'Create Missing BunJoin Pages and Translations', 'bunjoin-child' ) ); ?>
 		</form>
 
 		<h2><?php esc_html_e( 'Pages included', 'bunjoin-child' ); ?></h2>
