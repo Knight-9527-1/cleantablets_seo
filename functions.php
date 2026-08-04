@@ -2261,8 +2261,14 @@ function bunjoin_create_missing_pages() {
 		foreach ( $target_languages as $lang ) {
 			$page_slug = bunjoin_get_seed_page_slug( $page_key, $lang );
 			$page_title = bunjoin_get_seed_page_title( $page_key, $lang );
-			$found_id = bunjoin_get_page_id_by_key( $page_key, $lang );
-			$found = $found_id ? get_post( $found_id ) : get_page_by_path( $page_slug, OBJECT, 'page' );
+			$found = null;
+
+			if ( 'en' === $lang && 'home' === $page_key ) {
+				$front_id = (int) get_option( 'page_on_front' );
+				$found = $front_id ? get_post( $front_id ) : get_page_by_path( $page_slug, OBJECT, 'page' );
+			} else {
+				$found = get_page_by_path( $page_slug, OBJECT, 'page' );
+			}
 
 			if ( $found instanceof WP_Post ) {
 				update_post_meta( $found->ID, BUNJOIN_PAGE_KEY_META, $page_key );
