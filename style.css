@@ -588,6 +588,11 @@ p {
   display: none !important;
 }
 
+.bunjoin-managed-page .entry-content.wp-block-post-content,
+.bunjoin-managed-page [class*="hostinger-ai-"] {
+  display: none !important;
+}
+
 .bunjoin-split {
   display: grid;
   grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);

@@ -267,6 +267,10 @@ function bunjoin_child_body_classes( $classes ) {
 		$classes[] = 'bunjoin-product-catalog-page';
 	}
 
+	if ( isset( bunjoin_get_seed_pages()[ $key ] ) ) {
+		$classes[] = 'bunjoin-managed-page';
+	}
+
 	$classes[] = 'bunjoin-lang-' . bunjoin_current_language();
 
 	return $classes;
