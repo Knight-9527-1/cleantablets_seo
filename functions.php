@@ -2511,38 +2511,6 @@ function bunjoin_ensure_polylang_languages() {
 }
 
 /**
- * Temporary admin-only autorun endpoint for this setup pass.
- */
-function bunjoin_maybe_autorun_multilingual_setup() {
-	if ( ! is_admin() || empty( $_GET['bunjoin_autorun'] ) || empty( $_GET['page'] ) || 'bunjoin-child-setup' !== $_GET['page'] ) {
-		return;
-	}
-
-	if ( ! current_user_can( 'manage_options' ) ) {
-		return;
-	}
-
-	$step = sanitize_text_field( wp_unslash( $_GET['bunjoin_autorun'] ) );
-
-	if ( 'install' === $step ) {
-		$result = bunjoin_install_and_activate_polylang();
-		set_transient( 'bunjoin_autorun_plugin_result', is_wp_error( $result ) ? $result->get_error_message() : 'ok', 5 * MINUTE_IN_SECONDS );
-		wp_safe_redirect( admin_url( 'themes.php?page=bunjoin-child-setup&bunjoin_autorun=configure' ) );
-		exit;
-	}
-
-	if ( 'configure' === $step ) {
-		$language_result = bunjoin_ensure_polylang_languages();
-		$page_result = bunjoin_create_missing_pages();
-		set_transient( 'bunjoin_autorun_language_result', $language_result, 5 * MINUTE_IN_SECONDS );
-		set_transient( 'bunjoin_autorun_page_result', $page_result, 5 * MINUTE_IN_SECONDS );
-		wp_safe_redirect( admin_url( 'themes.php?page=bunjoin-child-setup&bunjoin_autorun_done=1' ) );
-		exit;
-	}
-}
-add_action( 'admin_init', 'bunjoin_maybe_autorun_multilingual_setup' );
-
-/**
  * Render setup admin page.
  */
 function bunjoin_render_setup_page() {
@@ -2563,28 +2531,22 @@ function bunjoin_render_setup_page() {
 		$plugin_result = bunjoin_install_and_activate_polylang();
 	}
 
+	if ( isset( $_POST['bunjoin_configure_languages'] ) ) {
+		check_admin_referer( 'bunjoin_configure_languages' );
+		$language_result = bunjoin_ensure_polylang_languages();
+		if ( empty( $language_result['failed'] ) ) {
+			$plugin_result = true;
+		} else {
+			$plugin_result = new WP_Error( 'bunjoin_language_setup_failed', implode( ' ', $language_result['failed'] ) );
+		}
+	}
+
 	$polylang_status = bunjoin_get_polylang_status();
-	$autorun_plugin_result = get_transient( 'bunjoin_autorun_plugin_result' );
-	$autorun_language_result = get_transient( 'bunjoin_autorun_language_result' );
-	$autorun_page_result = get_transient( 'bunjoin_autorun_page_result' );
 
 	?>
 	<div class="wrap">
 		<h1><?php esc_html_e( 'BunJoin Theme Setup', 'bunjoin-child' ); ?></h1>
 		<p><?php esc_html_e( 'Create only missing pages for the BunJoin navigation, multilingual structure, SEO page keys, and product detail structure. Existing pages, menus, homepage settings, and content are not overwritten.', 'bunjoin-child' ); ?></p>
-
-		<?php if ( ! empty( $_GET['bunjoin_autorun_done'] ) ) : ?>
-			<div class="notice notice-success is-dismissible">
-				<p><?php esc_html_e( 'Autorun completed. Review Polylang status and page counts below.', 'bunjoin-child' ); ?></p>
-				<p><?php echo esc_html( 'Plugin: ' . ( $autorun_plugin_result ? $autorun_plugin_result : 'not run in this request' ) ); ?></p>
-				<?php if ( is_array( $autorun_language_result ) ) : ?>
-					<p><?php echo esc_html( 'Languages created: ' . count( $autorun_language_result['created'] ) . '. Existing: ' . count( $autorun_language_result['existing'] ) . '. Failed: ' . count( $autorun_language_result['failed'] ) . '.' ); ?></p>
-				<?php endif; ?>
-				<?php if ( is_array( $autorun_page_result ) ) : ?>
-					<p><?php echo esc_html( 'Pages created: ' . count( $autorun_page_result['created'] ) . '. Existing: ' . count( $autorun_page_result['existing'] ) . '. Failed: ' . count( $autorun_page_result['failed'] ) . '.' ); ?></p>
-				<?php endif; ?>
-			</div>
-		<?php endif; ?>
 
 		<h2><?php esc_html_e( 'Polylang', 'bunjoin-child' ); ?></h2>
 		<p>
@@ -2615,6 +2577,11 @@ function bunjoin_render_setup_page() {
 			<p><?php esc_html_e( 'After activation, configure English, Chinese, and Spanish in Languages before creating multilingual pages.', 'bunjoin-child' ); ?></p>
 		<?php else : ?>
 			<p><?php esc_html_e( 'Recommended Polylang language slugs: en, zh, es.', 'bunjoin-child' ); ?></p>
+			<form method="post">
+				<?php wp_nonce_field( 'bunjoin_configure_languages' ); ?>
+				<input type="hidden" name="bunjoin_configure_languages" value="1">
+				<?php submit_button( __( 'Ensure English, Chinese, and Spanish Languages', 'bunjoin-child' ), 'secondary' ); ?>
+			</form>
 		<?php endif; ?>
 
 		<?php if ( is_array( $result ) ) : ?>
