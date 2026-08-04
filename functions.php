@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'BUNJOIN_CHILD_VERSION', '1.1.0' );
+define( 'BUNJOIN_CHILD_VERSION', '1.1.1' );
 define( 'BUNJOIN_PAGE_KEY_META', '_bunjoin_page_key' );
 
 /**
@@ -274,6 +274,50 @@ function bunjoin_child_body_classes( $classes ) {
 add_filter( 'body_class', 'bunjoin_child_body_classes' );
 
 /**
+ * Render language-prefixed managed pages if Polylang rewrite rules are stale.
+ */
+function bunjoin_render_language_fallback_404() {
+	if ( ! is_404() || empty( $_SERVER['REQUEST_URI'] ) ) {
+		return;
+	}
+
+	$path = trim( (string) wp_parse_url( esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ), PHP_URL_PATH ), '/' );
+
+	if ( ! preg_match( '#^(zh|es)(?:/(.*))?$#', $path, $matches ) ) {
+		return;
+	}
+
+	$lang = $matches[1];
+	$slug = isset( $matches[2] ) ? trim( $matches[2], '/' ) : '';
+	$key = $slug ? $slug : 'home';
+	$prefix = $lang . '-';
+
+	if ( str_starts_with( $key, $prefix ) ) {
+		$key = substr( $key, strlen( $prefix ) );
+	}
+
+	if ( 'home' !== $key && ! isset( bunjoin_get_seed_pages()[ $key ] ) ) {
+		return;
+	}
+
+	$GLOBALS['bunjoin_language_override'] = $lang;
+	$GLOBALS['bunjoin_page_key_override'] = $key;
+
+	status_header( 200 );
+	get_header();
+
+	if ( 'home' === $key ) {
+		echo bunjoin_wrap_main( bunjoin_render_home_content(), 'bunjoin-front-page' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	} else {
+		echo bunjoin_wrap_main( bunjoin_render_dynamic_page_content(), 'bunjoin-page' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	}
+
+	get_footer();
+	exit;
+}
+add_action( 'template_redirect', 'bunjoin_render_language_fallback_404', 0 );
+
+/**
  * If WooCommerce is present, keep this site in catalog/RFQ mode.
  */
 function bunjoin_disable_woocommerce_cart_flows() {
@@ -321,6 +365,10 @@ function bunjoin_supported_languages() {
  * @return string
  */
 function bunjoin_current_language() {
+	if ( ! empty( $GLOBALS['bunjoin_language_override'] ) && isset( bunjoin_supported_languages()[ $GLOBALS['bunjoin_language_override'] ] ) ) {
+		return $GLOBALS['bunjoin_language_override'];
+	}
+
 	if ( function_exists( 'pll_current_language' ) ) {
 		$lang = pll_current_language( 'slug' );
 
@@ -745,6 +793,10 @@ function bunjoin_get_seed_page_slug( $key, $lang = 'en' ) {
  * @return string
  */
 function bunjoin_get_current_page_key( $post = null ) {
+	if ( ! empty( $GLOBALS['bunjoin_page_key_override'] ) ) {
+		return sanitize_key( $GLOBALS['bunjoin_page_key_override'] );
+	}
+
 	$post = $post instanceof WP_Post ? $post : get_post();
 
 	if ( ! $post instanceof WP_Post ) {
